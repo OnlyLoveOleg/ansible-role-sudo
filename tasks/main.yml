@@ -1,0 +1,11 @@
+---
+- name: Check for supported operating system on target
+  fail:
+    msg: "The operating system of the target machine ({{ inventory_hostname }}) is not currently supported."
+  when: ( ansible_distribution != "RedHat" ) and
+        ( ansible_distribution != "Debian" )
+
+
+- name: include distro specific tasks
+  include: "{{ ansible_os_family }}.yml"
+  when: ( sudo_sudoers or sudo_sudoesr_d ) is defined

@@ -1,0 +1,32 @@
+---
+- name: RedHat | display the sudoers src file
+  debug:
+   msg='{{ sudo_sudoers | default("sudo_sudoers variable not defined") }}'
+
+
+- name: RedHat | copy the main sudoers file to /etc/sudoers
+  template:
+   src={{ sudo_sudoers }}
+   dest=/etc/sudoers
+   validate='visudo -cf %s'
+   owner=root
+   group=root
+   mode=0440
+  when: sudo_sudoers is defined
+
+
+- name: RedHat | display the source of sudoers.d directory
+  debug: 
+   msg='{{ sudo_sudoers_d | default("sudo_sudoers_d variable not defined") }}'
+
+
+- name: RedHat | copy additional configs to sudoers.d
+  template:
+   src={{ item }}
+   dest=/etc/sudoers.d/{{ item | basename }}
+   validate='visudo -cf %s'
+   owner=root
+   group=root
+   mode=0440
+  with_fileglob:
+   - "{{ sudo_sudoers_d | default([]) }}/*"
